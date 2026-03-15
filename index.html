@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trésorerie · Association</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161f;
+    --surface2: #1a1e2b;
+    --surface3: #1f2435;
+    --border: #252a3a;
+    --border2: #2e3448;
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --red-border: rgba(239,68,68,0.3);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --green-border: rgba(34,197,94,0.3);
+    --orange: #f97316;
+    --orange-dim: rgba(249,115,22,0.12);
+    --orange-border: rgba(249,115,22,0.35);
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 5rem;
+  }
+
+  /* Ambient glow */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -300px; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 500px;
+    background: radial-gradient(ellipse, rgba(59,130,246,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    max-width: 560px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 50px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted2);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.7rem, 5vw, 2.5rem);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
+  }
+
+  .tagline { font-size: 0.85rem; color: var(--muted); font-weight: 300; }
+
+  /* ── STEP INDICATOR ── */
+  .steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border2);
+    transition: all 0.3s;
+  }
+  .step-dot.active { background: var(--blue); box-shadow: 0 0 8px var(--blue); width: 24px; border-radius: 4px; }
+  .step-dot.done { background: var(--green); }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .card.depense { border-color: var(--red-border); }
+  .card.recette { border-color: var(--green-border); }
+  .card.attente { border-color: var(--orange-border); }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── FIELDS ── */
+  .field { margin-bottom: 1rem; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--muted2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  input[type=text], input[type=number], select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 0.72rem 0.9rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    background: var(--surface3);
+  }
+
+  select option { background: var(--surface2); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  /* ── TYPE SELECTOR (dépense / recette) ── */
+  .type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0;
+  }
+
+  .type-btn {
+    padding: 1.25rem 1rem;
+    border-radius: 12px;
+    border: 1.5px solid var(--border2);
+    background: var(--surface2);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .type-btn:hover { transform: translateY(-2px); }
+
+  .type-btn.depense:hover, .type-btn.depense.selected {
+    border-color: var(--red);
+    background: var(--red-dim);
+    box-shadow: 0 4px 20px rgba(239,68,68,0.15);
+  }
+
+  .type-btn.recette:hover, .type-btn.recette.selected {
+    border-color: var(--green);
+    background: var(--green-dim);
+    box-shadow: 0 4px 20px rgba(34,197,94,0.15);
+  }
+
+  .type-btn .tb-icon { font-size: 2rem; display: block; margin-bottom: 0.4rem; }
+
+  .type-btn .tb-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .type-btn.depense .tb-label { color: #fca5a5; }
+  .type-btn.recette .tb-label { color: #86efac; }
+
+  .type-btn .tb-sub { font-size: 0.72rem; color: var(--muted); }
+
+  /* ── COMPTE SELECTOR ── */
+  .compte-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .compte-btn {
+    padding: 0.75rem 0.5rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border2);
+    background: var(--surface2);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .compte-btn:hover { border-color: var(--blue); }
+
+  .compte-btn.selected.courant { border-color: var(--blue); background: rgba(59,130,246,0.12); }
+  .compte-btn.selected.caisse { border-color: var(--green); background: var(--green-dim); }
+  .compte-btn.selected.attente { border-color: var(--orange); background: var(--orange-dim); }
+
+  .compte-btn .cb-icon { font-size: 1.3rem; display: block; margin-bottom: 0.3rem; }
+  .compte-btn .cb-label { font-size: 0.72rem; font-weight: 600; color: var(--muted2); line-height: 1.3; }
+  .compte-btn.selected.attente .cb-label { color: var(--orange); }
+
+  /* ── PAIEMENT ── */
+  .paiement-grid {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .paiement-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.6rem 0.5rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--border2);
+    background: var(--surface2);
+    cursor: pointer;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: var(--muted2);
+    transition: all 0.15s;
+  }
+
+  .paiement-btn:hover { border-color: var(--blue); color: var(--text); }
+  .paiement-btn.selected { border-color: var(--blue); background: rgba(59,130,246,0.12); color: var(--text); font-weight: 600; }
+
+  /* ── UPLOAD ── */
+  .upload-zone {
+    border: 2px dashed var(--border2);
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface2);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--blue); background: rgba(59,130,246,0.05); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+  .upload-zone .uz-icon { font-size: 1.75rem; display: block; margin-bottom: 0.3rem; }
+  .upload-zone .uz-txt { font-size: 0.78rem; color: var(--muted2); }
+  .upload-zone .uz-txt strong { display: block; color: var(--text); margin-bottom: 0.1rem; font-size: 0.85rem; }
+
+  .preview-img {
+    max-width: 100%;
+    max-height: 180px;
+    border-radius: 8px;
+    margin-top: 0.75rem;
+    display: none;
+    object-fit: cover;
+    border: 1px solid var(--border2);
+  }
+
+  .compress-hint {
+    font-size: 0.7rem;
+    color: var(--green);
+    margin-top: 0.4rem;
+    display: none;
+  }
+
+  /* ── MONTANT DISPLAY ── */
+  .montant-display {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+  }
+
+  .montant-display .md-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .montant-display .md-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+  .montant-display.depense .md-val { color: #fca5a5; }
+  .montant-display.recette .md-val { color: #86efac; }
+
+  /* ── BOUTON SUBMIT ── */
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    letter-spacing: 0.5px;
+    margin-top: 0.5rem;
+  }
+
+  .submit-btn.depense {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 4px 20px rgba(239,68,68,0.3);
+  }
+
+  .submit-btn.recette {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    box-shadow: 0 4px 20px rgba(34,197,94,0.3);
+  }
+
+  .submit-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
+
+  .back-btn {
+    width: 100%;
+    padding: 0.7rem;
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 0.5rem;
+  }
+  .back-btn:hover { border-color: var(--muted); color: var(--text); }
+
+  /* ── SECTIONS ── */
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.3s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── ATTENTE BADGE ── */
+  .attente-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--orange-dim);
+    border: 1px solid var(--orange-border);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.78rem;
+    color: var(--orange);
+    font-weight: 600;
+    margin-top: 0.75rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* ── CONFIG SHEET ── */
+  .sheet-banner {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08));
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 12px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .sheet-banner .sb-info { flex: 1; min-width: 180px; }
+  .sheet-banner .sb-info strong {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #93c5fd;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .sheet-banner .sb-info span { font-size: 0.75rem; color: var(--muted2); }
+
+  .sheet-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+  .sheet-dot.ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+  .sheet-config-toggle {
+    background: none;
+    border: 1px solid rgba(59,130,246,0.3);
+    color: #93c5fd;
+    border-radius: 6px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.7rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .sheet-config-toggle:hover { background: rgba(59,130,246,0.1); }
+
+  .sheet-fields { display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(59,130,246,0.1); }
+  .sheet-fields.open { display: block; }
+
+  .sheet-fields input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 0.55rem 0.8rem;
+    font-family: 'Inter', monospace;
+    font-size: 0.75rem;
+    color: var(--text);
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  .sheet-fields input:focus { outline: none; border-color: var(--blue); }
+  .sheet-fields input::placeholder { color: var(--muted); }
+
+  .sheet-save {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 0.5rem 1rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .sheet-save:hover { opacity: 0.85; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 2rem; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 0.85rem 1.4rem;
+    font-size: 0.84rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 100;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green-border); }
+  .toast.error { border-color: var(--red-border); }
+  .toast.loading { border-color: rgba(59,130,246,0.3); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinning { animation: spin 0.8s linear infinite; display: inline-block; }
+
+  /* ── SUCCESS SCREEN ── */
+  .success-screen {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+
+  .success-screen .s-icon { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+  .success-screen h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .success-screen h2.depense { color: #fca5a5; }
+  .success-screen h2.recette { color: #86efac; }
+  .success-screen p { font-size: 0.85rem; color: var(--muted2); margin-bottom: 1.5rem; line-height: 1.6; }
+
+  .new-entry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 2rem;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .new-entry-btn:hover { border-color: var(--blue); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">🏛️ Association</div>
+    <h1>Trésorerie</h1>
+    <p class="tagline">Déclarez vos dépenses et recettes en quelques secondes</p>
+  </header>
+
+  <!-- Config Google Sheets -->
+  <div class="sheet-banner">
+    <div class="sheet-dot" id="sheetDot"></div>
+    <div class="sb-info">
+      <strong>Google Sheets</strong>
+      <span id="sheetStatusText">Non configuré — données non enregistrées</span>
+    </div>
+    <button class="sheet-config-toggle" onclick="toggleSheetConfig()">⚙ Configurer</button>
+    <div class="sheet-fields" id="sheetFields">
+      <input type="text" id="sheetUrl" placeholder="URL Google Apps Script (https://script.google.com/…)" />
+      <button class="sheet-save" onclick="saveSheetUrl()">✓ Sauvegarder</button>
+    </div>
+  </div>
+
+  <!-- STEP DOTS -->
+  <div class="steps" id="stepDots">
+    <div class="step-dot active" id="dot0"></div>
+    <div class="step-dot" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+  </div>
+
+  <!-- ═══ SECTION 0 : Choix membre + type ═══ -->
+  <div class="section active" id="section0">
+    <div class="card">
+      <div class="card-title">👤 Qui êtes-vous ?</div>
+      <div class="field">
+        <label>Votre prénom <span style="color:var(--blue)">*</span></label>
+        <select id="memberName">
+          <option value="">— Sélectionner —</option>
+          <option>Vianney</option>
+          <option>Laetitia</option>
+          <option>Romain</option>
+          <option>Nicolas</option>
+          <option>Lucas</option>
+          <option>Ibann</option>
+          <option>Dimitri</option>
+          <option>Belinda</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 Type d'opération</div>
+      <div class="type-grid">
+        <div class="type-btn depense" onclick="selectType('depense')">
+          <span class="tb-icon">📤</span>
+          <span class="tb-label">Dépense</span>
+          <span class="tb-sub">Achat, frais…</span>
+        </div>
+        <div class="type-btn recette" onclick="selectType('recette')">
+          <span class="tb-icon">📥</span>
+          <span class="tb-label">Recette</span>
+          <span class="tb-sub">Don, entrée…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SECTION 1 : DÉPENSE ═══ -->
+  <div class="section" id="section1-depense">
+    <div class="card depense">
+      <div class="card-title">📤 Dépense</div>
+
+      <div class="field">
+        <label>Catégorie <span style="color:var(--blue)">*</span></label>
+        <select id="depCat">
+          <option value="">— Choisir —</option>
+          <option>☕ Foyer (café, distributeur, pot…)</option>
+          <option>🎉 Événement (bal, repas, Ste Barbe…)</option>
+          <option>📦 Matériel / Fournitures</option>
+          <option>⛽ Carburant</option>
+          <option>📌 Autre</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Montant (€) <span style="color:var(--blue)">*</span></label>
+        <input type="number" id="depMontant" placeholder="0.00" step="0.01" oninput="updateMontantDisplay('depense')" />
+        <div class="montant-display depense" id="depMontantDisplay" style="display:none">
+          <span class="md-label">Montant dépensé</span>
+          <span class="md-val" id="depMontantVal">—</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Compte utilisé <span style="color:var(--blue)">*</span></label>
+        <div class="compte-grid">
+          <div class="compte-btn courant" onclick="selectCompte(this,'courant')" data-val="Compte courant">
+            <span class="cb-icon">🏦</span>
+            <span class="cb-label">Compte courant</span>
+          </div>
+          <div class="compte-btn caisse" onclick="selectCompte(this,'caisse')" data-val="Caisse liquide">
+            <span class="cb-icon">💰</span>
+            <span class="cb-label">Caisse liquide</span>
+          </div>
+          <div class="compte-btn attente" onclick="selectCompte(this,'attente')" data-val="En attente">
+            <span class="cb-icon">🚨</span>
+            <span class="cb-label">En attente</span>
+          </div>
+        </div>
+        <div class="attente-badge" id="attenteBadge" style="display:none">
+          🚨 Paiement en attente — à régulariser
+        </div>
+      </div>
+
+      <div class="field" id="paiementField" style="display:none">
+        <label>Moyen de paiement <span style="color:var(--blue)">*</span></label>
+        <div class="paiement-grid">
+          <div class="paiement-btn" onclick="selectPaiement(this)" data-val="Carte bancaire">💳 Carte</div>
+          <div class="paiement-btn" onclick="selectPaiement(this)" data-val="Chèque">📝 Chèque</div>
+          <div class="paiement-btn" onclick="selectPaiement(this)" data-val="Virement">📤 Virement</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Lieu / Magasin</label>
+        <input type="text" id="depLieu" placeholder="ex. Leclerc Vannes, Castorama…" />
+      </div>
+
+      <div class="field">
+        <label>Description / Motif <span style="color:var(--blue)">*</span></label>
+        <textarea id="depDesc" placeholder="ex. Achat guirlandes pour le bal de Noël"></textarea>
+      </div>
+    </div>
+
+    <div class="card depense">
+      <div class="card-title">🧾 Justificatif <span style="font-size:0.65rem;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(optionnel)</span></div>
+      <div class="upload-zone" id="depUpload">
+        <input type="file" id="depFile" accept="image/*" capture="environment" onchange="handleFile(event,'dep')">
+        <span class="uz-icon">📷</span>
+        <div class="uz-txt">
+          <strong>Photo ou ticket</strong>
+          Appareil photo · Galerie · Fichier
+        </div>
+      </div>
+      <img id="depPreview" class="preview-img" alt="Aperçu" />
+      <div class="compress-hint" id="depHint"></div>
+    </div>
+
+    <button class="submit-btn depense" id="depSubmit" onclick="submitEntry('depense')">
+      📤 Enregistrer la dépense
+    </button>
+    <button class="back-btn" onclick="goBack()">← Retour</button>
+  </div>
+
+  <!-- ═══ SECTION 1 : RECETTE ═══ -->
+  <div class="section" id="section1-recette">
+    <div class="card recette">
+      <div class="card-title">📥 Recette</div>
+
+      <div class="field">
+        <label>Catégorie <span style="color:var(--blue)">*</span></label>
+        <select id="recCat">
+          <option value="">— Choisir —</option>
+          <option>💵 Don Bal</option>
+          <option>📅 Don Calendriers</option>
+          <option>📌 Autres</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Montant (€) <span style="color:var(--blue)">*</span></label>
+        <input type="number" id="recMontant" placeholder="0.00" step="0.01" oninput="updateMontantDisplay('recette')" />
+        <div class="montant-display recette" id="recMontantDisplay" style="display:none">
+          <span class="md-label">Montant encaissé</span>
+          <span class="md-val" id="recMontantVal">—</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Description <span style="color:var(--blue)">*</span></label>
+        <textarea id="recDesc" placeholder="ex. Vente de 12 calendriers le 15/03"></textarea>
+      </div>
+    </div>
+
+    <div class="card recette">
+      <div class="card-title">🧾 Justificatif <span style="font-size:0.65rem;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(optionnel)</span></div>
+      <div class="upload-zone" id="recUpload">
+        <input type="file" id="recFile" accept="image/*" capture="environment" onchange="handleFile(event,'rec')">
+        <span class="uz-icon">📷</span>
+        <div class="uz-txt">
+          <strong>Photo ou justificatif</strong>
+          Appareil photo · Galerie · Fichier
+        </div>
+      </div>
+      <img id="recPreview" class="preview-img" alt="Aperçu" />
+      <div class="compress-hint" id="recHint"></div>
+    </div>
+
+    <button class="submit-btn recette" id="recSubmit" onclick="submitEntry('recette')">
+      📥 Enregistrer la recette
+    </button>
+    <button class="back-btn" onclick="goBack()">← Retour</button>
+  </div>
+
+  <!-- ═══ SECTION 2 : SUCCÈS ═══ -->
+  <div class="section" id="section2">
+    <div class="success-screen">
+      <span class="s-icon" id="successIcon">✅</span>
+      <h2 id="successTitle" class="depense">Enregistré !</h2>
+      <p id="successMsg">Votre dépense a bien été transmise au Google Sheets de l'association.</p>
+      <button class="new-entry-btn" onclick="resetAll()">
+        ＋ Nouvelle saisie
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+  // ══════════════════════════════════════════
+  // CONFIG — remplace par ton URL Apps Script
+  // ══════════════════════════════════════════
+  const SHEET_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbyrBabRfRsNtSrBFp5352WOhoX-zgA-M7E8qpJST8-PZzwHJkHKuxCDQ_XQCRabcSo/exec';
+
+  let currentType = null;
+  let selectedCompte = null;
+  let selectedPaiement = null;
+  let depBase64 = null, recBase64 = null;
+  let depFile = null, recFile = null;
+
+  // ── Google Sheets config ──
+  function getSheetUrl() {
+    return localStorage.getItem('sheet_url') || SHEET_URL_DEFAULT;
+  }
+
+  function saveSheetUrl() {
+    const val = document.getElementById('sheetUrl').value.trim();
+    if (!val.startsWith('https://')) { showToast('URL invalide.', 'error'); return; }
+    localStorage.setItem('sheet_url', val);
+    updateSheetStatus();
+    toggleSheetConfig(false);
+    showToast('URL Google Sheets sauvegardée ✓', 'success');
+  }
+
+  function toggleSheetConfig(forceClose) {
+    const f = document.getElementById('sheetFields');
+    const isOpen = f.classList.contains('open');
+    if (forceClose === false || isOpen) {
+      f.classList.remove('open');
+    } else {
+      f.classList.add('open');
+      const saved = localStorage.getItem('sheet_url');
+      if (saved) document.getElementById('sheetUrl').value = saved;
+    }
+  }
+
+  function updateSheetStatus() {
+    const url = getSheetUrl();
+    const ok = url && url !== SHEET_URL_DEFAULT;
+    document.getElementById('sheetDot').className = 'sheet-dot' + (ok ? ' ok' : '');
+    document.getElementById('sheetStatusText').textContent = ok
+      ? 'Connecté — données enregistrées automatiquement ✓'
+      : 'Non configuré — cliquez ⚙ pour ajouter l\'URL';
+    document.getElementById('sheetStatusText').style.color = ok ? 'var(--green)' : 'var(--muted2)';
+  }
+
+  updateSheetStatus();
+
+  // ── Navigation ──
+  function selectType(type) {
+    const member = document.getElementById('memberName').value;
+    if (!member) { showToast('Veuillez d\'abord sélectionner votre prénom.', 'error'); return; }
+    currentType = type;
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector('.type-btn.' + type).classList.add('selected');
+    setTimeout(() => showSection('section1-' + type, 1), 150);
+  }
+
+  function showSection(id, step) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    updateDots(step);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goBack() {
+    showSection('section0', 0);
+    currentType = null;
+    selectedCompte = null;
+    selectedPaiement = null;
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+  }
+
+  function updateDots(step) {
+    for (let i = 0; i < 3; i++) {
+      const d = document.getElementById('dot' + i);
+      d.className = 'step-dot' + (i < step ? ' done' : i === step ? ' active' : '');
+    }
+  }
+
+  // ── Compte ──
+  function selectCompte(btn, type) {
+    document.querySelectorAll('.compte-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedCompte = btn.dataset.val;
+    // Moyen de paiement seulement si compte courant
+    const pf = document.getElementById('paiementField');
+    pf.style.display = type === 'courant' ? 'block' : 'none';
+    if (type !== 'courant') { selectedPaiement = null; document.querySelectorAll('.paiement-btn').forEach(b => b.classList.remove('selected')); }
+    // Badge attente
+    document.getElementById('attenteBadge').style.display = type === 'attente' ? 'flex' : 'none';
+  }
+
+  // ── Paiement ──
+  function selectPaiement(btn) {
+    document.querySelectorAll('.paiement-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedPaiement = btn.dataset.val;
+  }
+
+  // ── Montant display ──
+  function updateMontantDisplay(type) {
+    const prefix = type === 'depense' ? 'dep' : 'rec';
+    const val = parseFloat(document.getElementById(prefix + 'Montant').value) || 0;
+    const disp = document.getElementById(prefix + 'MontantDisplay');
+    const valEl = document.getElementById(prefix + 'MontantVal');
+    if (val > 0) {
+      disp.style.display = 'flex';
+      valEl.textContent = val.toFixed(2).replace('.', ',') + ' €';
+    } else {
+      disp.style.display = 'none';
+    }
+  }
+
+  // ── Upload & compression ──
+  const uploadZones = document.querySelectorAll('.upload-zone');
+  uploadZones.forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag');
+      const f = e.dataTransfer.files[0];
+      const prefix = zone.id === 'depUpload' ? 'dep' : 'rec';
+      if (f && f.type.startsWith('image/')) processFile(f, prefix);
+    });
+  });
+
+  function handleFile(e, prefix) {
+    const f = e.target.files[0];
+    if (f) processFile(f, prefix);
+  }
+
+  function processFile(f, prefix) {
+    if (prefix === 'dep') depFile = f; else recFile = f;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.getElementById(prefix + 'Preview');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+      const hint = document.getElementById(prefix + 'Hint');
+      hint.style.display = 'block';
+      hint.textContent = '⏳ Compression…';
+      compressImage(ev.target.result, 900, 0.65, (compressed, cKo, oKo) => {
+        if (prefix === 'dep') depBase64 = compressed.split(',')[1];
+        else recBase64 = compressed.split(',')[1];
+        hint.textContent = `✅ ${oKo} Ko → ${cKo} Ko`;
+        hint.style.color = 'var(--green)';
+      });
+    };
+    reader.readAsDataURL(f);
+  }
+
+  function compressImage(dataUrl, maxWidth, quality, callback) {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = image.width, h = image.height;
+      if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(image, 0, 0, w, h);
+      let q = quality;
+      let result = canvas.toDataURL('image/jpeg', q);
+      while (result.length > 53000 && q > 0.1) { q = Math.max(0.1, q - 0.07); result = canvas.toDataURL('image/jpeg', q); }
+      callback(result, Math.round(result.length * 0.75 / 1024), Math.round(dataUrl.length * 0.75 / 1024));
+    };
+    image.src = dataUrl;
+  }
+
+  // ── Validation ──
+  function validateDepense() {
+    if (!document.getElementById('depCat').value) { showToast('Choisissez une catégorie.', 'error'); return false; }
+    if (!parseFloat(document.getElementById('depMontant').value)) { showToast('Saisissez un montant.', 'error'); return false; }
+    if (!selectedCompte) { showToast('Choisissez un compte.', 'error'); return false; }
+    if (selectedCompte === 'Compte courant' && !selectedPaiement) { showToast('Choisissez un moyen de paiement.', 'error'); return false; }
+    if (!document.getElementById('depDesc').value.trim()) { showToast('Ajoutez une description.', 'error'); return false; }
+    return true;
+  }
+
+  function validateRecette() {
+    if (!document.getElementById('recCat').value) { showToast('Choisissez une catégorie.', 'error'); return false; }
+    if (!parseFloat(document.getElementById('recMontant').value)) { showToast('Saisissez un montant.', 'error'); return false; }
+    if (!document.getElementById('recDesc').value.trim()) { showToast('Ajoutez une description.', 'error'); return false; }
+    return true;
+  }
+
+  // ── Submit ──
+  async function submitEntry(type) {
+    if (type === 'depense' && !validateDepense()) return;
+    if (type === 'recette' && !validateRecette()) return;
+
+    const btn = document.getElementById(type === 'depense' ? 'depSubmit' : 'recSubmit');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinning">⟳</span> Envoi en cours…';
+    showToast('Envoi en cours…', 'loading');
+
+    const now = new Date();
+    const date = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const ref = (type === 'depense' ? 'DEP' : 'REC') + '-' + Date.now().toString().slice(-6);
+
+    let payload;
+    if (type === 'depense') {
+      payload = {
+        type: 'Dépense',
+        date,
+        membre: document.getElementById('memberName').value,
+        categorie: document.getElementById('depCat').value,
+        montant: parseFloat(document.getElementById('depMontant').value).toFixed(2),
+        compte: selectedCompte,
+        paiement: selectedPaiement || '—',
+        lieu: document.getElementById('depLieu').value || '—',
+        description: document.getElementById('depDesc').value.trim(),
+        justificatif: depBase64 ? 'Oui (joint)' : 'Non',
+        ticket_base64: depBase64 || '',
+        ref
+      };
+    } else {
+      payload = {
+        type: 'Recette',
+        date,
+        membre: document.getElementById('memberName').value,
+        categorie: document.getElementById('recCat').value,
+        montant: parseFloat(document.getElementById('recMontant').value).toFixed(2),
+        compte: '—',
+        paiement: '—',
+        lieu: '—',
+        description: document.getElementById('recDesc').value.trim(),
+        justificatif: recBase64 ? 'Oui (joint)' : 'Non',
+        ticket_base64: recBase64 || '',
+        ref
+      };
+    }
+
+    const url = getSheetUrl();
+    const sheetConfigured = url && url !== SHEET_URL_DEFAULT;
+
+    try {
+      if (sheetConfigured) {
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
+      // Succès
+      showSuccessScreen(type, sheetConfigured, payload.montant);
+    } catch (e) {
+      showToast('Erreur réseau : ' + e.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = type === 'depense' ? '📤 Enregistrer la dépense' : '📥 Enregistrer la recette';
+    }
+  }
+
+  function showSuccessScreen(type, sheetOk, montant) {
+    const icon = document.getElementById('successIcon');
+    const title = document.getElementById('successTitle');
+    const msg = document.getElementById('successMsg');
+
+    icon.textContent = type === 'depense' ? '📤' : '📥';
+    title.textContent = type === 'depense' ? 'Dépense enregistrée !' : 'Recette enregistrée !';
+    title.className = type;
+    msg.innerHTML = sheetOk
+      ? `<strong>${montant} €</strong> enregistré${type === 'recette' ? 'e' : ''} dans le tableau Google Sheets de l'association.`
+      : `<strong>${montant} €</strong> saisi${type === 'recette' ? 'e' : ''}.<br><span style="color:var(--orange)">⚠ Google Sheets non configuré — données non transmises.</span>`;
+
+    showSection('section2', 2);
+    showToast(type === 'depense' ? '✅ Dépense enregistrée !' : '✅ Recette enregistrée !', 'success');
+  }
+
+  // ── Reset ──
+  function resetAll() {
+    currentType = null; selectedCompte = null; selectedPaiement = null;
+    depBase64 = null; recBase64 = null; depFile = null; recFile = null;
+    ['memberName','depCat','depMontant','depLieu','depDesc','recCat','recMontant','recDesc'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    ['depPreview','recPreview'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+    ['depHint','recHint','depMontantDisplay','recMontantDisplay','attenteBadge','paiementField'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    document.querySelectorAll('.compte-btn, .paiement-btn, .type-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('depFile').value = '';
+    document.getElementById('recFile').value = '';
+    showSection('section0', 0);
+  }
+
+  // ── Toast ──
+  function showToast(msg, type) {
+    const toast = document.getElementById('toast');
+    const icons = { success: '✅', error: '⚠️', loading: '⏳' };
+    document.getElementById('toastIcon').textContent = icons[type] || '';
+    document.getElementById('toastMsg').textContent = msg;
+    toast.className = 'toast ' + type + ' show';
+    if (type !== 'loading') setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+</script>
+</body>
+</html>
