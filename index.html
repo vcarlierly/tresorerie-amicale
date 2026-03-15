@@ -780,7 +780,18 @@
 
   // ── Google Sheets config ──
   function getSheetUrl() {
-    return localStorage.getItem('sheet_url') || SHEET_URL_DEFAULT;
+    const saved = localStorage.getItem('sheet_url');
+    return (saved && saved !== '') ? saved : SHEET_URL_DEFAULT;
+  }
+
+  function updateSheetStatus() {
+    const url = getSheetUrl();
+    const ok = url && url !== 'COLLER_URL_APPS_SCRIPT_ICI';
+    document.getElementById('sheetDot').className = 'sheet-dot' + (ok ? ' ok' : '');
+    document.getElementById('sheetStatusText').textContent = ok
+      ? 'Connecté — données enregistrées automatiquement ✓'
+      : 'Non configuré — cliquez ⚙ pour ajouter l\'URL';
+    document.getElementById('sheetStatusText').style.color = ok ? 'var(--green)' : 'var(--muted2)';
   }
 
   function saveSheetUrl() {
@@ -802,16 +813,6 @@
       const saved = localStorage.getItem('sheet_url');
       if (saved) document.getElementById('sheetUrl').value = saved;
     }
-  }
-
-  function updateSheetStatus() {
-    const url = getSheetUrl();
-    const ok = url && url !== SHEET_URL_DEFAULT;
-    document.getElementById('sheetDot').className = 'sheet-dot' + (ok ? ' ok' : '');
-    document.getElementById('sheetStatusText').textContent = ok
-      ? 'Connecté — données enregistrées automatiquement ✓'
-      : 'Non configuré — cliquez ⚙ pour ajouter l\'URL';
-    document.getElementById('sheetStatusText').style.color = ok ? 'var(--green)' : 'var(--muted2)';
   }
 
   updateSheetStatus();
